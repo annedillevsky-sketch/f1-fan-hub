@@ -1,0 +1,6 @@
+{
+  "name": "F1 Fan Hub",
+  "description": "Real-time F1 lap data, driver standings, race calendar alerts, interactive circuit map, telemetry analysis, and personalized driver tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

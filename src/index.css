@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+.font-racing {
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.04em;
+}
+
+.font-tech {
+  font-family: 'Rajdhani', monospace, sans-serif;
+  letter-spacing: 0.02em;
+}
+
+/* Custom telemetry track glow */
+.track-glow {
+  filter: drop-shadow(0 0 8px rgba(255, 30, 30, 0.4));
+}
+
+.track-drs {
+  filter: drop-shadow(0 0 10px rgba(34, 197, 94, 0.7));
+}
+
+/* Dark mode AMOLED night racing theme */
+.night-racing-mode {
+  background-color: #080A0F;
+  color: #F1F5F9;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+}
