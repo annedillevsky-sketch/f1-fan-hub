@@ -1,4 +1,4 @@
-// Official Formula 1 2026 driver portraits and team badge definitions
+// Official Formula 1 2026 driver portraits, team car liveries and badge definitions
 
 export interface DriverMediaInfo {
   id: string;
@@ -11,28 +11,43 @@ export interface DriverMediaInfo {
   helmetColor: string;
 }
 
-// Curated high-resolution portraits with reliable fallback
+// High-resolution official transparent PNG cutouts from Formula 1 CDN
 export const DRIVER_PORTRAITS: Record<string, string> = {
-  ant: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Andrea_Kimi_Antonelli_2024.jpg/440px-Andrea_Kimi_Antonelli_2024.jpg',
-  ver: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Max_Verstappen_2024.jpg/440px-Max_Verstappen_2024.jpg',
-  nor: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Lando_Norris_2024.jpg/440px-Lando_Norris_2024.jpg',
-  lec: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Charles_Leclerc_2023.jpg/440px-Charles_Leclerc_2023.jpg',
-  pia: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Oscar_Piastri_2023.jpg/440px-Oscar_Piastri_2023.jpg',
-  ham: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Lewis_Hamilton_2022_Silverstone_%28cropped%29.jpg/440px-Lewis_Hamilton_2022_Silverstone_%28cropped%29.jpg',
-  rus: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/George_Russell_2024.jpg/440px-George_Russell_2024.jpg',
-  sai: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Carlos_Sainz_Jr_2023.jpg/440px-Carlos_Sainz_Jr_2023.jpg',
-  alo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Fernando_Alonso_2022.jpg/440px-Fernando_Alonso_2022.jpg',
-  gas: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Pierre_Gasly_2024.jpg/440px-Pierre_Gasly_2024.jpg',
-  alb: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Alexander_Albon_2022.jpg/440px-Alexander_Albon_2022.jpg',
-  hul: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Nico_H%C3%BClkenberg_2023.jpg/440px-Nico_H%C3%BClkenberg_2023.jpg',
-  tsu: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Yuki_Tsunoda_2024.jpg/440px-Yuki_Tsunoda_2024.jpg',
-  str: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Lance_Stroll_2024.jpg/440px-Lance_Stroll_2024.jpg',
-  law: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Liam_Lawson_2023.jpg/440px-Liam_Lawson_2023.jpg',
-  had: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Isack_Hadjar_2024.jpg/440px-Isack_Hadjar_2024.jpg',
-  oco: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Esteban_Ocon_2024.jpg/440px-Esteban_Ocon_2024.jpg',
-  bea: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Oliver_Bearman_2024.jpg/440px-Oliver_Bearman_2024.jpg',
-  doo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Jack_Doohan_2023.jpg/440px-Jack_Doohan_2023.jpg',
-  bor: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Gabriel_Bortoleto_2023.jpg/440px-Gabriel_Bortoleto_2023.jpg',
+  // 2026 Grid Leaders and Full Lineup
+  ant: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/A/ANDANT01_Andrea_Kimi_Antonelli/andant01.png.transform/2col/image.png',
+  ver: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/M/MAXVER01_Max_Verstappen/maxver01.png.transform/2col/image.png',
+  nor: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LANNOR01_Lando_Norris/lannor01.png.transform/2col/image.png',
+  lec: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/C/CHALEC01_Charles_Leclerc/chalec01.png.transform/2col/image.png',
+  pia: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/O/OSCPIA01_Oscar_Piastri/oscpia01.png.transform/2col/image.png',
+  ham: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LEWHAM01_Lewis_Hamilton/lewham01.png.transform/2col/image.png',
+  rus: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/G/GEORUS01_George_Russell/georus01.png.transform/2col/image.png',
+  sai: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/C/CARSAI01_Carlos_Sainz/carsai01.png.transform/2col/image.png',
+  alo: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/F/FERALO01_Fernando_Alonso/feralo01.png.transform/2col/image.png',
+  gas: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/P/PIEGAS01_Pierre_Gasly/piegas01.png.transform/2col/image.png',
+  alb: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/A/ALEALB01_Alexander_Albon/alealb01.png.transform/2col/image.png',
+  hul: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/N/NICHUL01_Nico_Hulkenberg/nichul01.png.transform/2col/image.png',
+  tsu: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/Y/YUKTSU01_Yuki_Tsunoda/yuktsu01.png.transform/2col/image.png',
+  str: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LANSTR01_Lance_Stroll/lanstr01.png.transform/2col/image.png',
+  law: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/L/LIALAW01_Liam_Lawson/lialaw01.png.transform/2col/image.png',
+  had: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/I/ISAHAD01_Isack_Hadjar/isahad01.png.transform/2col/image.png',
+  oco: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/E/ESTOCO01_Esteban_Ocon/estoco01.png.transform/2col/image.png',
+  bea: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/O/OLIBEA01_Oliver_Bearman/olibea01.png.transform/2col/image.png',
+  doo: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/J/JACDOO01_Jack_Doohan/jacdoo01.png.transform/2col/image.png',
+  bor: 'https://media.formula1.com/d_driver_fallback_image.png/content/dam/fom-website/drivers/G/GABBOR01_Gabriel_Bortoleto/gabbor01.png.transform/2col/image.png',
+};
+
+// Official Formula 1 High-Resolution Transparent Car Livery Cutout Images
+export const TEAM_CAR_LIVERIES: Record<string, string> = {
+  mclaren: 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/mclaren.png.transform/4col/image.png',
+  ferrari: 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/ferrari.png.transform/4col/image.png',
+  redbull: 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/red-bull-racing.png.transform/4col/image.png',
+  mercedes: 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/mercedes.png.transform/4col/image.png',
+  astonmartin: 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/aston-martin.png.transform/4col/image.png',
+  williams: 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/williams.png.transform/4col/image.png',
+  alpine: 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/alpine.png.transform/4col/image.png',
+  sauber: 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/kick-sauber.png.transform/4col/image.png',
+  rb: 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/rb.png.transform/4col/image.png',
+  haas: 'https://media.formula1.com/d_team_car_fallback_image.png/content/dam/fom-website/teams/2024/haas.png.transform/4col/image.png',
 };
 
 // Team key mapping helper

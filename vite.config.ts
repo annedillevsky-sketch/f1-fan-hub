@@ -1,11 +1,17 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import {defineConfig} from 'vite';
+import {defineConfig, loadEnv} from 'vite';
 
-export default defineConfig(() => {
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  const apiKey = env.REACT_APP_F1_API_KEY || process.env.REACT_APP_F1_API_KEY || '';
+
   return {
     plugins: [react(), tailwindcss()],
+    define: {
+      'process.env.REACT_APP_F1_API_KEY': JSON.stringify(apiKey),
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
@@ -17,6 +23,14 @@ export default defineConfig(() => {
       hmr: process.env.DISABLE_HMR !== 'true',
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
+      proxy: {
+        '/api/f1': {
+          target: 'https://v1.formula-1.api-sports.io',
+          changeOrigin: true,
+          rewrite: (p) => p.replace(/^\/api\/f1/, ''),
+          headers: apiKey ? { 'x-apisports-key': apiKey } : {},
+        },
+      },
     },
   };
 });

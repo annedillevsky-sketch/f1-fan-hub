@@ -22,7 +22,7 @@ import {
   Timer,
   Info
 } from 'lucide-react';
-import { RACE_CALENDAR } from '../data/f1Data';
+import { RACE_CALENDAR, CIRCUITS } from '../data/f1Data';
 import { RaceEvent, NotificationItem, SessionType } from '../types';
 import { playLightsOutChime, playAlertChime, playEngineRevSound } from '../utils/audioAlerts';
 import { 
@@ -43,6 +43,8 @@ interface RaceCalendarProps {
   onToggleEventSubscription: (eventId: string) => void;
   pushNotificationsEnabled?: boolean;
   onTogglePushNotifications?: (enabled?: boolean) => Promise<void> | void;
+  races?: RaceEvent[];
+  loading?: boolean;
 }
 
 export const RaceCalendar: React.FC<RaceCalendarProps> = ({
@@ -52,10 +54,13 @@ export const RaceCalendar: React.FC<RaceCalendarProps> = ({
   onToggleEventSubscription,
   pushNotificationsEnabled = false,
   onTogglePushNotifications,
+  races,
+  loading = false,
 }) => {
   // Default to Baku (Round 17) or current live event
   const [expandedEventId, setExpandedEventId] = useState<string | null>('rd-17');
   const [filterMode, setFilterMode] = useState<'all' | 'upcoming' | 'sprint'>('all');
+  const [calendarLayout, setCalendarLayout] = useState<'timeline' | 'grid'>('timeline');
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission | 'unsupported'>('default');
   const [copiedCalendarId, setCopiedCalendarId] = useState<string | null>(null);
   const [isTestCountdownActive, setIsTestCountdownActive] = useState(false);
@@ -65,11 +70,13 @@ export const RaceCalendar: React.FC<RaceCalendarProps> = ({
     setNotificationPermission(getNotificationPermission());
   }, []);
 
-  // Find next upcoming/live race for countdown - prioritize Baku Round 17
-  const nextEvent = RACE_CALENDAR.find(e => e.id === 'rd-17') || 
-                    RACE_CALENDAR.find(e => e.status === 'LIVE') || 
-                    RACE_CALENDAR.find(e => e.status === 'UPCOMING') || 
-                    RACE_CALENDAR[0];
+  const calendarEvents = (races && races.length > 0) ? races : RACE_CALENDAR;
+
+  // Find next upcoming/live race for countdown - prioritize live/upcoming
+  const nextEvent = calendarEvents.find(e => e.status === 'LIVE') || 
+                    calendarEvents.find(e => e.status === 'UPCOMING') || 
+                    calendarEvents.find(e => e.id === 'rd-17') || 
+                    calendarEvents[0];
 
   // Live countdown state to Azerbaijan GP Main Race
   const [timeLeft, setTimeLeft] = useState({
@@ -96,7 +103,7 @@ export const RaceCalendar: React.FC<RaceCalendarProps> = ({
   }, []);
 
   // Filter events
-  const filteredEvents = RACE_CALENDAR.filter(e => {
+  const filteredEvents = calendarEvents.filter(e => {
     if (filterMode === 'upcoming') return e.status === 'UPCOMING' || e.status === 'LIVE';
     if (filterMode === 'sprint') return e.isSprint;
     return true;
@@ -487,109 +494,220 @@ export const RaceCalendar: React.FC<RaceCalendarProps> = ({
         )}
       </div>
 
-      {/* Calendar Filters & Information Bar */}
-      <div className={`p-4 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
-        isDarkMode ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200'
+      {/* Calendar Filters & Information Bar: LIVE SCHEDULE */}
+      <div className={`p-4 sm:p-5 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 carbon-pattern shadow-xl ${
+        isDarkMode ? 'border-slate-800' : 'bg-slate-900 border-slate-700 text-white'
       }`}>
         <div>
-          <h3 className="text-base font-racing font-bold text-slate-100 flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-red-500" />
-            2026 FIA Formula One World Championship Schedule
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-600/20 text-red-400 border border-red-500/30 uppercase tracking-widest">
+              FIA F1 2026 CALENDAR
+            </span>
+            <span className="text-xs font-mono text-slate-400">OFFICIAL TIMING &amp; SESSIONS</span>
+          </div>
+          <h3 className="text-2xl sm:text-3xl font-motorsport italic font-black text-white uppercase flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-red-500" />
+            LIVE SCHEDULE
           </h3>
-          <p className="text-xs text-slate-400 font-mono">
-            Every Practice, Qualifying, Sprint, and Main Race includes one-click "Add to Google Calendar" and ".ics" download.
+          <p className="text-xs text-slate-400 font-mono mt-1">
+            Every Practice, Qualifying, Sprint, and Main Race with one-click Google Calendar sync and desktop alerts.
           </p>
         </div>
 
-        <div className="flex items-center gap-1.5 p-1 rounded-xl border border-slate-800 bg-slate-950 text-xs font-mono">
-          <button
-            id="filter-cal-all"
-            onClick={() => setFilterMode('all')}
-            className={`px-3 py-1 rounded-lg transition ${
-              filterMode === 'all' ? 'bg-red-600 text-white font-bold' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            All 10 Rounds
-          </button>
-          <button
-            id="filter-cal-upcoming"
-            onClick={() => setFilterMode('upcoming')}
-            className={`px-3 py-1 rounded-lg transition ${
-              filterMode === 'upcoming' ? 'bg-red-600 text-white font-bold' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Upcoming Only
-          </button>
-          <button
-            id="filter-cal-sprint"
-            onClick={() => setFilterMode('sprint')}
-            className={`px-3 py-1 rounded-lg transition ${
-              filterMode === 'sprint' ? 'bg-red-600 text-white font-bold' : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Sprint Races
-          </button>
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Layout Mode (Timeline vs Grid) */}
+          <div className="flex items-center gap-1 p-1 rounded-xl border border-slate-800 bg-slate-950 text-xs font-mono">
+            <button
+              id="layout-timeline"
+              onClick={() => setCalendarLayout('timeline')}
+              className={`px-3 py-1.5 rounded-lg transition font-bold uppercase text-[11px] ${
+                calendarLayout === 'timeline' ? 'bg-red-600 text-white shadow-md shadow-red-600/30' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Timeline View
+            </button>
+            <button
+              id="layout-grid"
+              onClick={() => setCalendarLayout('grid')}
+              className={`px-3 py-1.5 rounded-lg transition font-bold uppercase text-[11px] ${
+                calendarLayout === 'grid' ? 'bg-red-600 text-white shadow-md shadow-red-600/30' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Interactive Grid
+            </button>
+          </div>
+
+          {/* Filter Mode */}
+          <div className="flex items-center gap-1.5 p-1 rounded-xl border border-slate-800 bg-slate-950 text-xs font-mono">
+            <button
+              id="filter-cal-all"
+              onClick={() => setFilterMode('all')}
+              className={`px-3 py-1 rounded-lg transition ${
+                filterMode === 'all' ? 'bg-red-600 text-white font-bold' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              All 10 Rounds
+            </button>
+            <button
+              id="filter-cal-upcoming"
+              onClick={() => setFilterMode('upcoming')}
+              className={`px-3 py-1 rounded-lg transition ${
+                filterMode === 'upcoming' ? 'bg-red-600 text-white font-bold' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Upcoming Only
+            </button>
+            <button
+              id="filter-cal-sprint"
+              onClick={() => setFilterMode('sprint')}
+              className={`px-3 py-1 rounded-lg transition ${
+                filterMode === 'sprint' ? 'bg-red-600 text-white font-bold' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Sprint Races
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Grand Prix Cards List */}
-      <div className="space-y-4">
-        {filteredEvents.map((event) => {
+      {/* Grand Prix Cards List (Timeline or Grid Layout) */}
+      {loading ? (
+        <div className="space-y-4">
+          {[1, 2, 3, 4].map(idx => (
+            <div key={idx} className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 animate-pulse h-32 flex items-center justify-between">
+              <div className="space-y-3">
+                <div className="w-36 h-5 bg-slate-800 rounded" />
+                <div className="w-56 h-8 bg-slate-800 rounded" />
+              </div>
+              <div className="w-24 h-10 bg-slate-800 rounded-xl" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className={
+          calendarLayout === 'grid'
+            ? 'grid grid-cols-1 lg:grid-cols-2 gap-4'
+            : 'space-y-4'
+        }>
+          {filteredEvents.map((event) => {
           const isSubscribed = subscribedEvents.includes(event.id);
           const isExpanded = expandedEventId === event.id;
+          const circuit = CIRCUITS.find(c => c.id === event.circuitId) || CIRCUITS[0];
 
           return (
             <div 
               key={event.id}
               id={`gp-card-${event.id}`}
-              className={`rounded-2xl border transition-all ${
-                isDarkMode ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-              } ${event.status === 'LIVE' ? 'ring-2 ring-red-600/50 shadow-lg shadow-red-950/20' : ''}`}
+              className={`group relative rounded-2xl cyber-cut-card border transition-all overflow-hidden ${
+                isDarkMode ? 'bg-[#0A0E17] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+              } ${event.status === 'LIVE' ? 'ring-2 ring-red-600/60 shadow-xl shadow-red-950/30' : ''}`}
             >
+              {/* Background Styling: Faint Circuit Track Outline Map in Background of Each Race Card */}
+              <div className="absolute right-0 top-0 bottom-0 w-72 md:w-96 opacity-[0.06] group-hover:opacity-[0.14] transition-opacity duration-300 pointer-events-none flex items-center justify-center p-3 overflow-hidden">
+                <svg 
+                  viewBox={circuit?.viewBox || "0 0 600 480"} 
+                  className="w-full h-full stroke-cyan-400 fill-none" 
+                  strokeWidth="8"
+                >
+                  <path d={circuit?.svgPath} />
+                </svg>
+              </div>
+
               {/* Event Header Card */}
               <div 
-                className="p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 cursor-pointer"
+                className="p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 cursor-pointer relative z-10"
                 onClick={() => setExpandedEventId(isExpanded ? null : event.id)}
               >
-                <div className="flex items-center gap-4">
-                  {/* Round number badge */}
-                  <div className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center font-racing border ${
+                <div className="flex items-start sm:items-center gap-4">
+                  {/* Round Tag (e.g., "ROUND 01", "ROUND 17") */}
+                  <div className={`px-3 py-2 rounded-xl flex flex-col items-center justify-center font-racing border shrink-0 ${
                     event.status === 'LIVE'
                       ? 'bg-red-600 text-white border-red-500 shadow-md shadow-red-600/30'
-                      : 'bg-red-600/15 border-red-500/30 text-red-400'
+                      : 'bg-slate-900 border-slate-800 text-slate-200'
                   }`}>
-                    <span className="text-[9px] font-bold uppercase tracking-wider">RND</span>
-                    <span className="text-lg font-bold">{event.round}</span>
+                    <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-slate-400">
+                      ROUND
+                    </span>
+                    <span className="text-lg font-bold leading-none mt-0.5">
+                      {String(event.round).padStart(2, '0')}
+                    </span>
                   </div>
 
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-xl">{event.flagEmoji}</span>
-                      <h4 className="text-base sm:text-lg font-racing font-bold text-slate-100">
+                      <h4 className="text-base sm:text-lg font-racing font-bold text-white">
                         {event.name}
                       </h4>
+
+                      {/* Status Badges: UPCOMING, LIVE, COMPLETED */}
                       {event.status === 'LIVE' && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-red-600 text-white animate-pulse">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-red-600 text-white animate-pulse flex items-center gap-1 shadow-md shadow-red-600/40">
+                          <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
                           LIVE NOW
                         </span>
                       )}
+                      {event.status === 'UPCOMING' && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                          UPCOMING
+                        </span>
+                      )}
                       {event.status === 'COMPLETED' && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-800 text-slate-400 border border-slate-700">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-800/80 text-slate-400 border border-slate-700">
                           COMPLETED
                         </span>
                       )}
+
+                      {/* Sprint Race Badge */}
                       {event.isSprint && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1">
+                          <Zap className="w-3 h-3 text-amber-400" />
                           SPRINT WEEKEND
                         </span>
                       )}
                     </div>
-                    <div className="text-xs text-slate-400 font-mono mt-0.5 flex items-center gap-1.5">
-                      <MapPin className="w-3 h-3 text-red-500" />
-                      <span>{event.circuit}</span>
+
+                    <div className="text-xs text-slate-400 font-mono mt-1 flex flex-wrap items-center gap-2">
+                      <span className="flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-red-500" />
+                        <span>{event.circuit}</span>
+                      </span>
                       <span>•</span>
                       <span>{event.date}</span>
+
+                      {/* Session Countdown Timer Component */}
+                      {event.status === 'LIVE' && (
+                        <span className="px-2 py-0.5 rounded bg-red-950/60 border border-red-500/30 text-red-300 text-[10px] font-mono font-bold">
+                          Q3 SESSION ACTIVE
+                        </span>
+                      )}
+                      {event.status === 'UPCOMING' && (
+                        <span className="px-2 py-0.5 rounded bg-slate-900/90 border border-slate-800 text-cyan-300 text-[10px] font-mono flex items-center gap-1">
+                          <Timer className="w-2.5 h-2.5 text-cyan-400" />
+                          <span>T-MINUS {timeLeft.days}D {timeLeft.hours}H {timeLeft.minutes}M</span>
+                        </span>
+                      )}
                     </div>
+
+                    {/* Circuit Specs: Laps, Length, Turns */}
+                    {circuit && (
+                      <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] font-mono text-slate-400">
+                        <span className="px-2 py-0.5 rounded bg-slate-950/70 border border-slate-800/80">
+                          <strong className="text-white">{circuit.laps}</strong> Laps
+                        </span>
+                        <span className="px-2 py-0.5 rounded bg-slate-950/70 border border-slate-800/80">
+                          <strong className="text-white">{circuit.lengthKm}</strong> km Length
+                        </span>
+                        <span className="px-2 py-0.5 rounded bg-slate-950/70 border border-slate-800/80">
+                          <strong className="text-white">{circuit.turns}</strong> Turns
+                        </span>
+                        {circuit.lapRecord && (
+                          <span className="hidden sm:inline-block px-2 py-0.5 rounded bg-slate-950/70 border border-slate-800/80 text-amber-400">
+                            Lap Record: {circuit.lapRecord.time} ({circuit.lapRecord.driver})
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -761,8 +879,9 @@ export const RaceCalendar: React.FC<RaceCalendarProps> = ({
               )}
             </div>
           );
-        })}
-      </div>
+          })}
+        </div>
+      )}
     </div>
   );
 };

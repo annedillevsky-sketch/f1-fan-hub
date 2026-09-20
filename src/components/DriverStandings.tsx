@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Driver, Constructor } from '../types';
 import { CONSTRUCTORS } from '../data/f1Data';
-import { Trophy, Award, Shield, Users, Star, ArrowUpRight, TrendingUp } from 'lucide-react';
+import { Trophy, Award, Shield, Users, Star, ArrowUpRight, TrendingUp, LayoutGrid, Table } from 'lucide-react';
 import { DriverAvatar } from './DriverAvatar';
 import { TeamBadge } from './TeamBadge';
+import { GridLeaders } from './GridLeaders';
 
 interface DriverStandingsProps {
   drivers: Driver[];
@@ -21,6 +22,7 @@ export const DriverStandings: React.FC<DriverStandingsProps> = ({
   onSelectDriverForTelemetry,
 }) => {
   const [standingsTab, setStandingsTab] = useState<'drivers' | 'constructors' | 'headtohead'>('drivers');
+  const [driverView, setDriverView] = useState<'cards' | 'table'>('cards');
 
   // Sort drivers by championship points
   const sortedDrivers = [...drivers].sort((a, b) => b.points - a.points);
@@ -82,9 +84,49 @@ export const DriverStandings: React.FC<DriverStandingsProps> = ({
 
       {/* View 1: Drivers Championship */}
       {standingsTab === 'drivers' && (
-        <div className={`rounded-xl border overflow-hidden shadow-xl ${
-          isDarkMode ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200'
-        }`}>
+        <div className="space-y-4">
+          {/* Sub-view toggle (Cyber Cards vs Detailed Table) */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs font-mono text-slate-400">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="uppercase font-bold tracking-wider text-slate-300">2026 Grid Telemetry &amp; Standings</span>
+            </div>
+            <div className="flex items-center gap-1 p-1 rounded-lg border border-slate-800 bg-slate-950 text-xs font-mono">
+              <button
+                id="driver-view-cards"
+                onClick={() => setDriverView('cards')}
+                className={`px-3 py-1 rounded-md flex items-center gap-1.5 transition ${
+                  driverView === 'cards' ? 'bg-red-600 text-white font-bold' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                <span>Cyber Cards</span>
+              </button>
+              <button
+                id="driver-view-table"
+                onClick={() => setDriverView('table')}
+                className={`px-3 py-1 rounded-md flex items-center gap-1.5 transition ${
+                  driverView === 'table' ? 'bg-red-600 text-white font-bold' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Table className="w-3.5 h-3.5" />
+                <span>Detailed Table</span>
+              </button>
+            </div>
+          </div>
+
+          {driverView === 'cards' ? (
+            <GridLeaders
+              drivers={drivers}
+              isDarkMode={isDarkMode}
+              favoriteDriverIds={favoriteDriverIds}
+              onToggleFavorite={onToggleFavorite}
+              onSelectDriverForTelemetry={onSelectDriverForTelemetry}
+            />
+          ) : (
+            <div className={`rounded-xl border overflow-hidden shadow-xl ${
+              isDarkMode ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200'
+            }`}>
           <div className="overflow-x-auto">
             <table className="w-full text-xs font-mono text-left">
               <thead>
@@ -209,6 +251,8 @@ export const DriverStandings: React.FC<DriverStandingsProps> = ({
               </tbody>
             </table>
           </div>
+        </div>
+          )}
         </div>
       )}
 

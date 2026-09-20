@@ -13,6 +13,16 @@
   letter-spacing: 0.04em;
 }
 
+.font-motorsport {
+  font-family: 'Chakra Petch', 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.03em;
+}
+
+.font-orbitron {
+  font-family: 'Orbitron', 'Chakra Petch', monospace, sans-serif;
+  letter-spacing: 0.05em;
+}
+
 .font-tech {
   font-family: 'Rajdhani', monospace, sans-serif;
   letter-spacing: 0.02em;
@@ -31,6 +41,82 @@
 .night-racing-mode {
   background-color: #080A0F;
   color: #F1F5F9;
+}
+
+/* Carbon fiber high-tech racing pattern */
+.carbon-pattern {
+  background-color: #080a0f;
+  background-image: 
+    linear-gradient(45deg, #111520 25%, transparent 25%), 
+    linear-gradient(-45deg, #111520 25%, transparent 25%), 
+    linear-gradient(45deg, transparent 75%, #111520 75%), 
+    linear-gradient(-45deg, transparent 75%, #111520 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+}
+
+/* Dynamic race grid lines */
+.race-grid-lines {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Cyber/motorsport diagonal angle cut corners */
+.cyber-cut-card {
+  clip-path: polygon(
+    0 0, 
+    calc(100% - 18px) 0, 
+    100% 18px, 
+    100% 100%, 
+    18px 100%, 
+    0 calc(100% - 18px)
+  );
+}
+
+.cyber-cut-badge {
+  clip-path: polygon(
+    0 0, 
+    calc(100% - 8px) 0, 
+    100% 8px, 
+    100% 100%, 
+    8px 100%, 
+    0 calc(100% - 8px)
+  );
+}
+
+/* Red/cyan metallic gradient text glow */
+.metallic-red-cyan-glow {
+  background: linear-gradient(135deg, #ff1e27 0%, #ffffff 35%, #00f0ff 70%, #ff1e27 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 25px rgba(255, 30, 39, 0.5)) drop-shadow(0 0 15px rgba(0, 240, 255, 0.4));
+}
+
+/* Large outlined driver number */
+.outline-driver-number {
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(255, 255, 255, 0.4);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-style: italic;
+}
+
+.outline-driver-number-cyan {
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(0, 240, 255, 0.5);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-style: italic;
+}
+
+/* Neon glow tags */
+.neon-tag-glass {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 240, 255, 0.5);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.25), inset 0 0 12px rgba(255, 30, 39, 0.15);
 }
 
 /* Custom scrollbars */

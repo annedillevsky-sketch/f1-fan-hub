@@ -20,11 +20,16 @@ import { PersonalizedDashboard } from './components/PersonalizedDashboard';
 import { NewsAndHistory } from './components/NewsAndHistory';
 import { TeamsAndCars } from './components/TeamsAndCars';
 import { GoogleAuthModal } from './components/GoogleAuthModal';
-import { GoogleAuthLanding } from './components/GoogleAuthLanding';
 import { NotificationCenter } from './components/NotificationCenter';
 import { ActiveToast } from './components/ActiveToast';
 import { PitStopStrategyPredictor } from './components/PitStopStrategyPredictor';
+import { MotorsportHero } from './components/MotorsportHero';
+import { HomeLanding } from './components/HomeLanding';
+import { GridLeaders } from './components/GridLeaders';
+import { ScheduleAndLive } from './components/ScheduleAndLive';
+import { ApiStatusBanner } from './components/ApiStatusBanner';
 import { useAuth } from './context/AuthContext';
+import { useApiSports } from './context/ApiSportsContext';
 import { 
   requestNotificationPermission, 
   triggerBrowserNotification 
@@ -32,16 +37,30 @@ import {
 import { playAlertChime } from './utils/audioAlerts';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<string>('timing');
+  const [activeTab, setActiveTab] = useState<string>('home');
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     const saved = localStorage.getItem('f1_dark_mode');
     return saved !== null ? saved === 'true' : true; // default to Night Racing dark mode
   });
 
   const { user, favoriteDriverIds, toggleFavoriteDriver, loginWithGoogle } = useAuth();
+  const { 
+    drivers: apiDrivers, 
+    constructors: apiConstructors, 
+    races: apiRaces, 
+    loading: apiLoading 
+  } = useApiSports();
+
   const [flagStatus, setFlagStatus] = useState<FlagStatus>('GREEN');
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [drivers, setDrivers] = useState<Driver[]>(INITIAL_DRIVERS);
+
+  // Sync drivers from real-time API when loaded
+  useEffect(() => {
+    if (apiDrivers && apiDrivers.length > 0) {
+      setDrivers(apiDrivers);
+    }
+  }, [apiDrivers]);
   const [radioMessages] = useState<RadioMessage[]>(TEAM_RADIO_ARCHIVE);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
@@ -179,17 +198,6 @@ export default function App() {
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  // First Page Gate: Google Authentication
-  if (!user) {
-    return (
-      <GoogleAuthLanding
-        isDarkMode={isDarkMode}
-        setIsDarkMode={setIsDarkMode}
-        onEnterAsGuest={() => loginWithGoogle('guest.f1fan@gmail.com', 'F1 Paddock Guest')}
-      />
-    );
-  }
-
   return (
     <div className={`min-h-screen transition-colors duration-200 ${
       isDarkMode ? 'bg-[#080A0F] text-slate-100' : 'bg-slate-100 text-slate-900'
@@ -214,7 +222,65 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-5">
+        {/* Real-time API Sports Connection & Telemetry Status Bar */}
+        <ApiStatusBanner isDarkMode={isDarkMode} />
+
+        {/* Clean Page Routing: [Home], [Drivers Grid], [Teams/Cars], [Schedule & Live] */}
+        {activeTab === 'home' && (
+          <HomeLanding
+            onNavigateTab={setActiveTab}
+            isDarkMode={isDarkMode}
+          />
+        )}
+
+        {activeTab === 'drivers' && (
+          <div className="space-y-6">
+            <GridLeaders
+              drivers={drivers}
+              isDarkMode={isDarkMode}
+              favoriteDriverIds={favoriteDriverIds}
+              onToggleFavorite={handleToggleFavorite}
+              onSelectDriverForTelemetry={handleSelectDriverForTelemetry}
+              loading={apiLoading}
+            />
+          </div>
+        )}
+
+        {activeTab === 'teams' && (
+          <TeamsAndCars
+            drivers={drivers}
+            isDarkMode={isDarkMode}
+            favoriteDriverIds={favoriteDriverIds}
+            onToggleFavorite={handleToggleFavorite}
+            onSelectDriverForTelemetry={handleSelectDriverForTelemetry}
+            constructors={apiConstructors}
+            loading={apiLoading}
+          />
+        )}
+
+        {activeTab === 'schedule' && (
+          <ScheduleAndLive
+            drivers={drivers}
+            setDrivers={setDrivers}
+            flagStatus={flagStatus}
+            isDarkMode={isDarkMode}
+            soundEnabled={soundEnabled}
+            favoriteDriverIds={favoriteDriverIds}
+            onToggleFavorite={handleToggleFavorite}
+            onSelectDriverForTelemetry={handleSelectDriverForTelemetry}
+            radioMessages={radioMessages}
+            onDispatchNotification={handleDispatchNotification}
+            subscribedEvents={subscribedEvents}
+            onToggleEventSubscription={handleToggleEventSubscription}
+            pushNotificationsEnabled={pushNotificationsEnabled}
+            onTogglePushNotifications={handleTogglePushNotifications}
+            races={apiRaces}
+            loading={apiLoading}
+          />
+        )}
+
+        {/* Fallbacks for sub-views if navigated directly */}
         {activeTab === 'timing' && (
           <LiveTiming
             drivers={drivers}
@@ -229,74 +295,9 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'teams' && (
-          <TeamsAndCars
-            drivers={drivers}
-            isDarkMode={isDarkMode}
-            favoriteDriverIds={favoriteDriverIds}
-            onToggleFavorite={handleToggleFavorite}
-            onSelectDriverForTelemetry={handleSelectDriverForTelemetry}
-          />
-        )}
-
-        {activeTab === 'circuit' && (
-          <CircuitMap
-            drivers={drivers}
-            isDarkMode={isDarkMode}
-          />
-        )}
-
         {activeTab === 'telemetry' && (
           <TelemetryAnalysis
             drivers={drivers}
-            isDarkMode={isDarkMode}
-          />
-        )}
-
-        {activeTab === 'strategy' && (
-          <PitStopStrategyPredictor
-            drivers={drivers}
-            isDarkMode={isDarkMode}
-            soundEnabled={soundEnabled}
-          />
-        )}
-
-
-        {activeTab === 'standings' && (
-          <DriverStandings
-            drivers={drivers}
-            isDarkMode={isDarkMode}
-            favoriteDriverIds={favoriteDriverIds}
-            onToggleFavorite={handleToggleFavorite}
-            onSelectDriverForTelemetry={handleSelectDriverForTelemetry}
-          />
-        )}
-
-        {activeTab === 'calendar' && (
-          <RaceCalendar
-            isDarkMode={isDarkMode}
-            onDispatchNotification={handleDispatchNotification}
-            subscribedEvents={subscribedEvents}
-            onToggleEventSubscription={handleToggleEventSubscription}
-            pushNotificationsEnabled={pushNotificationsEnabled}
-            onTogglePushNotifications={handleTogglePushNotifications}
-          />
-        )}
-
-        {activeTab === 'mydrivers' && (
-          <PersonalizedDashboard
-            drivers={drivers}
-            favoriteDriverIds={favoriteDriverIds}
-            onToggleFavorite={handleToggleFavorite}
-            onSelectDriverForTelemetry={handleSelectDriverForTelemetry}
-            onNavigateToTab={setActiveTab}
-            isDarkMode={isDarkMode}
-            radioMessages={radioMessages}
-          />
-        )}
-
-        {activeTab === 'news' && (
-          <NewsAndHistory
             isDarkMode={isDarkMode}
           />
         )}
