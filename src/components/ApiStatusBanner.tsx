@@ -1,13 +1,13 @@
 import React from 'react';
-import { Radio, RefreshCw, AlertCircle, Database, CheckCircle2 } from 'lucide-react';
-import { useApiSports } from '../context/ApiSportsContext';
+import { RefreshCw, Radio, Activity } from 'lucide-react';
+import { useOpenF1 } from '../context/OpenF1Context';
 
 interface ApiStatusBannerProps {
   isDarkMode: boolean;
 }
 
 export const ApiStatusBanner: React.FC<ApiStatusBannerProps> = ({ isDarkMode }) => {
-  const { apiStatus, loading, refreshData, season, setSeason } = useApiSports();
+  const { apiStatus, loading, refreshData, season, setSeason } = useOpenF1();
 
   return (
     <div 
@@ -24,13 +24,11 @@ export const ApiStatusBanner: React.FC<ApiStatusBannerProps> = ({ isDarkMode }) 
             className={`w-2.5 h-2.5 rounded-full inline-block ${
               apiStatus.isLive 
                 ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse' 
-                : apiStatus.hasKey 
-                  ? 'bg-amber-400' 
-                  : 'bg-cyan-400'
+                : 'bg-cyan-400 animate-pulse'
             }`} 
           />
-          <span className="font-bold uppercase tracking-wider text-[11px]">
-            {apiStatus.isLive ? 'API-SPORTS LIVE' : 'API-SPORTS INTEGRATED'}
+          <span className="font-bold uppercase tracking-wider text-[11px] text-red-500">
+            {apiStatus.isLive ? 'OPENF1 LIVE' : 'OPENF1 TELEMETRY'}
           </span>
         </div>
 
@@ -51,7 +49,7 @@ export const ApiStatusBanner: React.FC<ApiStatusBannerProps> = ({ isDarkMode }) 
       {/* Season Picker & Sync Action */}
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-1 bg-slate-900/90 px-2 py-0.5 rounded-lg border border-slate-800">
-          <span className="text-[10px] text-slate-400 uppercase">Season:</span>
+          <span className="text-[10px] text-slate-400 uppercase">Year:</span>
           <select
             value={season}
             onChange={(e) => setSeason(e.target.value)}
@@ -61,6 +59,7 @@ export const ApiStatusBanner: React.FC<ApiStatusBannerProps> = ({ isDarkMode }) 
             <option value="2026">2026</option>
             <option value="2025">2025</option>
             <option value="2024">2024</option>
+            <option value="latest">Latest</option>
           </select>
         </div>
 
@@ -72,7 +71,7 @@ export const ApiStatusBanner: React.FC<ApiStatusBannerProps> = ({ isDarkMode }) 
               ? 'bg-slate-900 border-slate-800 hover:bg-slate-800 text-slate-300' 
               : 'bg-slate-100 border-slate-200 hover:bg-slate-200 text-slate-700'
           } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-          title="Fetch latest data from API-Sports"
+          title="Fetch latest telemetry from OpenF1 API"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-red-500' : ''}`} />
           <span className="text-[10px] font-bold hidden sm:inline">
@@ -83,3 +82,4 @@ export const ApiStatusBanner: React.FC<ApiStatusBannerProps> = ({ isDarkMode }) 
     </div>
   );
 };
+

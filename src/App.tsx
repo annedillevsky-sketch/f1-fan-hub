@@ -29,7 +29,7 @@ import { GridLeaders } from './components/GridLeaders';
 import { ScheduleAndLive } from './components/ScheduleAndLive';
 import { ApiStatusBanner } from './components/ApiStatusBanner';
 import { useAuth } from './context/AuthContext';
-import { useApiSports } from './context/ApiSportsContext';
+import { useOpenF1 } from './context/OpenF1Context';
 import { 
   requestNotificationPermission, 
   triggerBrowserNotification 
@@ -49,7 +49,7 @@ export default function App() {
     constructors: apiConstructors, 
     races: apiRaces, 
     loading: apiLoading 
-  } = useApiSports();
+  } = useOpenF1();
 
   const [flagStatus, setFlagStatus] = useState<FlagStatus>('GREEN');
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
@@ -223,7 +223,7 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-5">
-        {/* Real-time API Sports Connection & Telemetry Status Bar */}
+        {/* Real-time OpenF1 Telemetry Status Bar */}
         <ApiStatusBanner isDarkMode={isDarkMode} />
 
         {/* Clean Page Routing: [Home], [Drivers Grid], [Teams/Cars], [Schedule & Live] */}

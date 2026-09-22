@@ -28,7 +28,7 @@ export const HomeLanding: React.FC<HomeLandingProps> = ({
   races,
   loading = false,
 }) => {
-  // Target next Grand Prix dynamically from API-Sports races or fallback
+  // Target next Grand Prix dynamically from OpenF1 races or fallback
   const now = new Date();
   const availableRaces = races && races.length > 0 ? races : RACE_CALENDAR;
   const nextEvent = availableRaces.find(e => {

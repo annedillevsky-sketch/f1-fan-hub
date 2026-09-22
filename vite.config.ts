@@ -24,11 +24,15 @@ export default defineConfig(({ mode }) => {
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
       proxy: {
+        '/api/openf1': {
+          target: 'https://api.openf1.org/v1',
+          changeOrigin: true,
+          rewrite: (p) => p.replace(/^\/api\/openf1/, ''),
+        },
         '/api/f1': {
-          target: 'https://v1.formula-1.api-sports.io',
+          target: 'https://api.openf1.org/v1',
           changeOrigin: true,
           rewrite: (p) => p.replace(/^\/api\/f1/, ''),
-          headers: apiKey ? { 'x-apisports-key': apiKey } : {},
         },
       },
     },

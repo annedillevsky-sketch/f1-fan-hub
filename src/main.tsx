@@ -3,14 +3,14 @@ import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 import { AuthProvider } from './context/AuthContext';
-import { ApiSportsProvider } from './context/ApiSportsContext';
+import { OpenF1Provider } from './context/OpenF1Context';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
-      <ApiSportsProvider>
+      <OpenF1Provider>
         <App />
-      </ApiSportsProvider>
+      </OpenF1Provider>
     </AuthProvider>
   </StrictMode>,
 );
