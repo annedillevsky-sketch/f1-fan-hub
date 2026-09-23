@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Driver, 
   FlagStatus, 
@@ -27,11 +27,15 @@ import {
   Wind,
   Droplets,
   Compass,
-  Layers
+  Layers,
+  Search,
+  History,
+  X
 } from 'lucide-react';
 import { playTeamRadioChirp, playAlertChime, playTeamRadioTransmission } from '../utils/audioAlerts';
 import { DriverAvatar } from './DriverAvatar';
 import { TeamBadge } from './TeamBadge';
+import { TeamRadioArchive } from './TeamRadioArchive';
 
 interface LiveTimingProps {
   drivers: Driver[];
@@ -62,6 +66,26 @@ export const LiveTiming: React.FC<LiveTimingProps> = ({
   const totalLaps = 51;
   const [filterMode, setFilterMode] = useState<'all' | 'top10' | 'favorites'>('all');
   const [activeRadio, setActiveRadio] = useState<RadioMessage | null>(radioMessages[0] || null);
+  const [isRadioArchiveModalOpen, setIsRadioArchiveModalOpen] = useState(false);
+  const [quickRadioSearch, setQuickRadioSearch] = useState('');
+  const [quickRadioEra, setQuickRadioEra] = useState<'all' | 'recent' | 'historic'>('all');
+
+  const filteredQuickRadioMessages = useMemo(() => {
+    const q = quickRadioSearch.trim().toLowerCase();
+    return radioMessages.filter(m => {
+      if (quickRadioEra === 'recent' && m.isHistoric) return false;
+      if (quickRadioEra === 'historic' && !m.isHistoric) return false;
+      if (q) {
+        return (
+          m.driverName.toLowerCase().includes(q) ||
+          m.driverCode.toLowerCase().includes(q) ||
+          m.team.toLowerCase().includes(q) ||
+          m.message.toLowerCase().includes(q)
+        );
+      }
+      return true;
+    });
+  }, [radioMessages, quickRadioSearch, quickRadioEra]);
 
   // Casual (Simple) View vs. Pro View Toggle
   const [viewMode, setViewMode] = useState<'simple' | 'pro'>(() => {
@@ -365,73 +389,230 @@ export const LiveTiming: React.FC<LiveTimingProps> = ({
 
       {/* Team Radio Chatter Live Box */}
       {activeRadio && (
-        <div className={`p-4 rounded-2xl border flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-md ${
-          isDarkMode ? 'bg-slate-900/70 border-slate-800' : 'bg-slate-50 border-slate-200'
+        <div className={`p-4 rounded-2xl border flex flex-col gap-3 shadow-md ${
+          isDarkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-slate-50 border-slate-200'
         }`}>
-          <div className="flex items-center gap-3.5">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition shadow-md ${
-              isRadioPlayingAudio 
-                ? 'bg-amber-500 text-slate-950 shadow-amber-500/30 ring-2 ring-amber-400' 
-                : 'bg-red-600/20 border border-red-500/30 text-red-400'
-            }`}>
-              <Radio className={`w-5 h-5 ${isRadioPlayingAudio ? 'animate-spin' : 'animate-pulse'}`} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-sm font-racing font-extrabold uppercase tracking-wider text-slate-100">
-                  {activeRadio.driverName} (#{activeRadio.driverCode})
-                </span>
-                <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">
-                  {activeRadio.team}
-                </span>
-                <span className="text-[11px] font-mono text-slate-400">
-                  Lap {activeRadio.lap} • {activeRadio.timeString}
-                </span>
-                {isRadioPlayingAudio && (
-                  <span className="flex items-center gap-1 text-xs font-mono font-bold text-amber-400 animate-pulse">
-                    <Volume2 className="w-3.5 h-3.5" />
-                    TRANSMITTING AUDIO...
+          {/* Top row: Radio Info & Play Controls */}
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition shadow-md ${
+                isRadioPlayingAudio 
+                  ? 'bg-amber-500 text-slate-950 shadow-amber-500/30 ring-2 ring-amber-400' 
+                  : 'bg-red-600/20 border border-red-500/30 text-red-400'
+              }`}>
+                <Radio className={`w-5 h-5 ${isRadioPlayingAudio ? 'animate-spin' : 'animate-pulse'}`} />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-racing font-extrabold uppercase tracking-wider text-slate-100">
+                    {activeRadio.driverName} (#{activeRadio.driverCode})
                   </span>
+                  <span 
+                    className="text-xs font-mono px-2 py-0.5 rounded-full font-bold"
+                    style={{ 
+                      backgroundColor: `${activeRadio.teamColor}25`, 
+                      color: activeRadio.teamColor,
+                      border: `1px solid ${activeRadio.teamColor}50` 
+                    }}
+                  >
+                    {activeRadio.team}
+                  </span>
+                  {activeRadio.isHistoric ? (
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold flex items-center gap-1">
+                      <History className="w-3 h-3" />
+                      HISTORIC ({activeRadio.year || 'CLASSIC'})
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-bold flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                      RECENT ({activeRadio.year || '2026'})
+                    </span>
+                  )}
+                  <span className="text-[11px] font-mono text-slate-400">
+                    Lap {activeRadio.lap} • {activeRadio.timeString}
+                  </span>
+                  {isRadioPlayingAudio && (
+                    <span className="flex items-center gap-1 text-xs font-mono font-bold text-amber-400 animate-pulse">
+                      <Volume2 className="w-3.5 h-3.5" />
+                      TRANSMITTING AUDIO...
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs sm:text-sm font-mono text-amber-300 mt-1 italic">
+                  "{activeRadio.message}"
+                </p>
+                {activeRadio.context && (
+                  <p className="text-[11px] font-mono text-slate-400 mt-0.5 truncate">
+                    <span className="text-slate-500 font-bold">Context:</span> {activeRadio.context}
+                  </p>
                 )}
               </div>
-              <p className="text-xs sm:text-sm font-mono text-amber-300 mt-1 italic">
-                "{activeRadio.message}"
-              </p>
+            </div>
+
+            <div className="flex items-center gap-2 self-end md:self-center shrink-0 flex-wrap">
+              {/* Audio Play Button */}
+              <button
+                id="play-radio-audio-btn"
+                onClick={() => handlePlayRadio(activeRadio, true)}
+                disabled={isRadioPlayingAudio}
+                className={`px-3.5 py-2 rounded-xl text-xs font-mono font-bold flex items-center gap-2 border transition shadow-sm ${
+                  isRadioPlayingAudio
+                    ? 'bg-amber-500 text-slate-950 border-amber-400'
+                    : 'bg-slate-800 text-amber-300 border-slate-700 hover:bg-slate-700 hover:text-white'
+                }`}
+                title="Play simulated pit-to-car radio voice transmission"
+              >
+                <Volume2 className="w-4 h-4" />
+                <span>{isRadioPlayingAudio ? 'TRANSMITTING...' : 'PLAY AUDIO'}</span>
+              </button>
+
+              {/* Full Archive & Search Modal Trigger Button */}
+              <button
+                id="open-radio-archive-modal-btn"
+                onClick={() => setIsRadioArchiveModalOpen(true)}
+                className="px-3.5 py-2 rounded-xl text-xs font-mono font-bold flex items-center gap-1.5 border border-red-500/40 bg-red-950/40 hover:bg-red-900/60 text-red-200 hover:text-white transition shadow-sm"
+                title="Search and filter full radio archive"
+              >
+                <Search className="w-3.5 h-3.5 text-amber-400" />
+                <span>Search Archive ({radioMessages.length})</span>
+              </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 self-end md:self-center flex-wrap">
-            {/* Audio Play Button */}
-            <button
-              id="play-radio-audio-btn"
-              onClick={() => handlePlayRadio(activeRadio, true)}
-              disabled={isRadioPlayingAudio}
-              className={`px-3.5 py-2 rounded-xl text-xs font-mono font-bold flex items-center gap-2 border transition shadow-sm ${
-                isRadioPlayingAudio
-                  ? 'bg-amber-500 text-slate-950 border-amber-400'
-                  : 'bg-slate-800 text-amber-300 border-slate-700 hover:bg-slate-700 hover:text-white'
-              }`}
-              title="Play simulated pit-to-car radio voice transmission"
-            >
-              <Volume2 className="w-4 h-4" />
-              <span>{isRadioPlayingAudio ? 'TRANSMITTING...' : 'PLAY AUDIO'}</span>
-            </button>
+          {/* Quick filter & message selector row */}
+          <div className="pt-2 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
+            {/* Quick Era Tabs & Quick Search */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[11px] text-slate-400 font-bold">QUICK FILTER:</span>
+              <div className="flex items-center gap-1 bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-[11px]">
+                <button
+                  onClick={() => setQuickRadioEra('all')}
+                  className={`px-2 py-0.5 rounded font-bold transition ${
+                    quickRadioEra === 'all' ? 'bg-red-600 text-white' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  All ({radioMessages.length})
+                </button>
+                <button
+                  onClick={() => setQuickRadioEra('recent')}
+                  className={`px-2 py-0.5 rounded font-bold transition ${
+                    quickRadioEra === 'recent' ? 'bg-cyan-600 text-white' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Recent ({radioMessages.filter(m => !m.isHistoric).length})
+                </button>
+                <button
+                  onClick={() => setQuickRadioEra('historic')}
+                  className={`px-2 py-0.5 rounded font-bold transition ${
+                    quickRadioEra === 'historic' ? 'bg-amber-600 text-white' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Historic ({radioMessages.filter(m => m.isHistoric).length})
+                </button>
+              </div>
 
-            {/* Radio message quick selector */}
-            <div className="flex items-center gap-1">
-              {radioMessages.map(msg => (
+              {/* Quick Search Input */}
+              <div className="relative">
+                <input
+                  type="text"
+                  value={quickRadioSearch}
+                  onChange={(e) => setQuickRadioSearch(e.target.value)}
+                  placeholder="Quick filter driver / team..."
+                  className="pl-6 pr-6 py-0.5 rounded-md text-[11px] bg-slate-950 border border-slate-800 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-red-500"
+                />
+                <Search className="w-3 h-3 absolute left-1.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                {quickRadioSearch && (
+                  <button
+                    onClick={() => setQuickRadioSearch('')}
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Quick selector chips */}
+            <div className="flex items-center gap-1 overflow-x-auto max-w-full pb-1 sm:pb-0">
+              {filteredQuickRadioMessages.slice(0, 10).map(msg => (
                 <button
                   key={msg.id}
                   onClick={() => handlePlayRadio(msg, false)}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-mono border transition ${
+                  className={`px-2 py-0.5 rounded-lg text-[11px] font-mono border transition shrink-0 flex items-center gap-1 ${
                     activeRadio.id === msg.id 
-                      ? 'bg-red-600 text-white border-red-500 font-bold' 
-                      : 'text-slate-400 border-slate-800 hover:bg-slate-800'
+                      ? 'bg-red-600 text-white border-red-500 font-bold shadow-sm' 
+                      : 'text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-slate-200'
                   }`}
+                  title={`${msg.driverName} (${msg.team}) - ${msg.message}`}
                 >
-                  {msg.driverCode}
+                  <span 
+                    className="w-1.5 h-1.5 rounded-full" 
+                    style={{ backgroundColor: msg.teamColor }} 
+                  />
+                  <span>{msg.driverCode}</span>
+                  {msg.isHistoric && (
+                    <span className="text-[9px] text-amber-400 font-bold">H</span>
+                  )}
                 </button>
               ))}
+              {filteredQuickRadioMessages.length > 10 && (
+                <button
+                  onClick={() => setIsRadioArchiveModalOpen(true)}
+                  className="px-2 py-0.5 rounded-lg text-[10px] font-mono text-amber-400 hover:text-amber-300 hover:underline shrink-0"
+                >
+                  +{filteredQuickRadioMessages.length - 10} more
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Full Team Radio Archive & Search Modal */}
+      {isRadioArchiveModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md animate-fadeIn">
+          <div 
+            className="w-full max-w-5xl max-h-[92vh] flex flex-col rounded-2xl border border-slate-800 bg-[#0B0F17] shadow-2xl overflow-hidden text-slate-100"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950/80">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-red-600/20 border border-red-500/40 flex items-center justify-center text-red-500 shadow-md">
+                  <Radio className="w-5 h-5 animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="font-motorsport italic font-bold text-lg text-white uppercase tracking-wider flex items-center gap-2">
+                    <span>TEAM RADIO ARCHIVE &amp; SEARCH</span>
+                    <span className="text-xs font-mono font-normal px-2 py-0.5 rounded bg-slate-800 text-slate-400">
+                      {radioMessages.length} Messages
+                    </span>
+                  </h3>
+                  <p className="text-xs font-mono text-slate-400">
+                    Search transmissions by driver, team name, circuit, or historic memorable quotes
+                  </p>
+                </div>
+              </div>
+
+              <button
+                id="close-radio-archive-modal-btn"
+                onClick={() => setIsRadioArchiveModalOpen(false)}
+                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                title="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-4 sm:p-6 overflow-y-auto max-h-[calc(92vh-80px)]">
+              <TeamRadioArchive
+                radioMessages={radioMessages}
+                isDarkMode={isDarkMode}
+                onSelectRadioMessage={(msg) => {
+                  setActiveRadio(msg);
+                }}
+              />
             </div>
           </div>
         </div>

@@ -8,6 +8,7 @@ interface DriverAvatarProps {
   lastName?: string;
   number?: number;
   teamColor?: string;
+  avatarUrl?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
 }
@@ -19,11 +20,12 @@ export const DriverAvatar: React.FC<DriverAvatarProps> = ({
   lastName = '',
   number,
   teamColor = '#E10600',
+  avatarUrl,
   size = 'md',
   className = '',
 }) => {
   const [hasError, setHasError] = useState(false);
-  const imageUrl = DRIVER_PORTRAITS[driverId.toLowerCase()];
+  const imageUrl = avatarUrl || DRIVER_PORTRAITS[driverId.toLowerCase()];
 
   const sizeClasses = {
     sm: 'w-7 h-7 text-[10px]',

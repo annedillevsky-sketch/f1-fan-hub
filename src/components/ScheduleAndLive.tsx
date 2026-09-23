@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Calendar, Activity, Map, LineChart, Timer } from 'lucide-react';
+import { Calendar, Activity, Map, LineChart, Timer, Radio } from 'lucide-react';
 import { RaceCalendar } from './RaceCalendar';
 import { LiveTiming } from './LiveTiming';
 import { CircuitMap } from './CircuitMap';
 import { TelemetryAnalysis } from './TelemetryAnalysis';
-import { Driver, FlagStatus, NotificationItem, RaceEvent } from '../types';
+import { TeamRadioArchive } from './TeamRadioArchive';
+import { Driver, FlagStatus, NotificationItem, RaceEvent, RadioMessage } from '../types';
 
 interface ScheduleAndLiveProps {
   drivers: Driver[];
@@ -15,7 +16,7 @@ interface ScheduleAndLiveProps {
   favoriteDriverIds: string[];
   onToggleFavorite: (id: string) => void;
   onSelectDriverForTelemetry: (id: string) => void;
-  radioMessages: any[];
+  radioMessages: RadioMessage[];
   onDispatchNotification: (notification: Omit<NotificationItem, 'id' | 'timestamp' | 'read'>) => void;
   subscribedEvents: string[];
   onToggleEventSubscription: (eventId: string) => void;
@@ -43,7 +44,7 @@ export const ScheduleAndLive: React.FC<ScheduleAndLiveProps> = ({
   races,
   loading = false,
 }) => {
-  const [subView, setSubView] = useState<'schedule' | 'timing' | 'circuit' | 'telemetry'>('schedule');
+  const [subView, setSubView] = useState<'schedule' | 'timing' | 'circuit' | 'telemetry' | 'radio'>('schedule');
 
   return (
     <div className="space-y-6">
@@ -111,6 +112,19 @@ export const ScheduleAndLive: React.FC<ScheduleAndLiveProps> = ({
             <LineChart className="w-3.5 h-3.5" />
             <span>Telemetry</span>
           </button>
+
+          <button
+            id="subview-radio"
+            onClick={() => setSubView('radio')}
+            className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition ${
+              subView === 'radio'
+                ? 'bg-red-600 text-white shadow-md shadow-red-600/30'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Radio className="w-3.5 h-3.5 text-amber-400" />
+            <span>Radio Archive</span>
+          </button>
         </div>
       </div>
 
@@ -152,6 +166,13 @@ export const ScheduleAndLive: React.FC<ScheduleAndLiveProps> = ({
       {subView === 'telemetry' && (
         <TelemetryAnalysis
           drivers={drivers}
+          isDarkMode={isDarkMode}
+        />
+      )}
+
+      {subView === 'radio' && (
+        <TeamRadioArchive
+          radioMessages={radioMessages}
           isDarkMode={isDarkMode}
         />
       )}

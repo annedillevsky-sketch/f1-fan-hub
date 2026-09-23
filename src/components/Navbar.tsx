@@ -79,9 +79,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const navItems = [
     { id: 'home', label: 'Home', icon: Home },
+    { id: 'championship', label: 'Championship', icon: Trophy },
     { id: 'drivers', label: 'Drivers Grid', icon: Users },
     { id: 'teams', label: 'Teams/Cars', icon: Car },
     { id: 'schedule', label: 'Schedule & Live', icon: Calendar },
+    { id: 'radio', label: 'Team Radio', icon: Radio },
   ];
 
   return (

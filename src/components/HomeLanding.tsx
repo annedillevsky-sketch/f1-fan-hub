@@ -4,6 +4,7 @@ import {
   Calendar, 
   Users, 
   Car, 
+  Trophy,
   ChevronRight, 
   MapPin, 
   Zap, 
@@ -202,7 +203,27 @@ export const HomeLanding: React.FC<HomeLandingProps> = ({
         </div>
 
         {/* Clean Exploration Navigation Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 w-full max-w-3xl pt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 w-full max-w-6xl pt-2">
+          <button
+            onClick={() => onNavigateTab('championship')}
+            className="p-4 rounded-2xl bg-slate-900/70 hover:bg-slate-800/90 border border-slate-800 hover:border-red-500/60 transition-all duration-300 text-left group shadow-lg flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-red-600/15 text-red-400 border border-red-500/20 group-hover:scale-110 transition-transform">
+                <Trophy className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="font-motorsport font-bold text-sm text-white uppercase group-hover:text-red-400 transition-colors">
+                  Championship
+                </div>
+                <div className="text-[11px] text-slate-400 font-mono">
+                  Official Standings
+                </div>
+              </div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-white group-hover:translate-x-1 transition-all" />
+          </button>
+
           <button
             onClick={() => onNavigateTab('drivers')}
             className="p-4 rounded-2xl bg-slate-900/70 hover:bg-slate-800/90 border border-slate-800 hover:border-red-500/60 transition-all duration-300 text-left group shadow-lg flex items-center justify-between"
@@ -216,7 +237,7 @@ export const HomeLanding: React.FC<HomeLandingProps> = ({
                   Drivers Grid
                 </div>
                 <div className="text-[11px] text-slate-400 font-mono">
-                  All 20 Pilots &amp; Portraits
+                  20 Pilots &amp; Portraits
                 </div>
               </div>
             </div>
@@ -236,7 +257,7 @@ export const HomeLanding: React.FC<HomeLandingProps> = ({
                   Teams &amp; Cars
                 </div>
                 <div className="text-[11px] text-slate-400 font-mono">
-                  3D CAD &amp; Livery Cutouts
+                  Livery Cutouts &amp; Specs
                 </div>
               </div>
             </div>
@@ -256,7 +277,27 @@ export const HomeLanding: React.FC<HomeLandingProps> = ({
                   Schedule &amp; Live
                 </div>
                 <div className="text-[11px] text-slate-400 font-mono">
-                  Sessions &amp; Telemetry
+                  Timing &amp; Telemetry
+                </div>
+              </div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-white group-hover:translate-x-1 transition-all" />
+          </button>
+
+          <button
+            onClick={() => onNavigateTab('radio')}
+            className="p-4 rounded-2xl bg-slate-900/70 hover:bg-slate-800/90 border border-slate-800 hover:border-purple-500/60 transition-all duration-300 text-left group shadow-lg flex items-center justify-between"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-purple-600/15 text-purple-400 border border-purple-500/20 group-hover:scale-110 transition-transform">
+                <Radio className="w-5 h-5 animate-pulse" />
+              </div>
+              <div>
+                <div className="font-motorsport font-bold text-sm text-white uppercase group-hover:text-purple-400 transition-colors">
+                  Team Radio
+                </div>
+                <div className="text-[11px] text-slate-400 font-mono">
+                  Archive &amp; Audio Comms
                 </div>
               </div>
             </div>

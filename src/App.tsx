@@ -12,6 +12,7 @@ import {
 } from './types';
 import { Navbar } from './components/Navbar';
 import { LiveTiming } from './components/LiveTiming';
+import { ChampionshipTable } from './components/ChampionshipTable';
 import { CircuitMap } from './components/CircuitMap';
 import { TelemetryAnalysis } from './components/TelemetryAnalysis';
 import { DriverStandings } from './components/DriverStandings';
@@ -27,6 +28,7 @@ import { MotorsportHero } from './components/MotorsportHero';
 import { HomeLanding } from './components/HomeLanding';
 import { GridLeaders } from './components/GridLeaders';
 import { ScheduleAndLive } from './components/ScheduleAndLive';
+import { TeamRadioArchive } from './components/TeamRadioArchive';
 import { ApiStatusBanner } from './components/ApiStatusBanner';
 import { useAuth } from './context/AuthContext';
 import { useOpenF1 } from './context/OpenF1Context';
@@ -226,7 +228,7 @@ export default function App() {
         {/* Real-time OpenF1 Telemetry Status Bar */}
         <ApiStatusBanner isDarkMode={isDarkMode} />
 
-        {/* Clean Page Routing: [Home], [Drivers Grid], [Teams/Cars], [Schedule & Live] */}
+        {/* Clean Page Routing: [Home], [Championship], [Drivers Grid], [Teams/Cars], [Schedule & Live] */}
         {activeTab === 'home' && (
           <HomeLanding
             onNavigateTab={setActiveTab}
@@ -234,8 +236,25 @@ export default function App() {
           />
         )}
 
+        {activeTab === 'championship' && (
+          <div className="space-y-6">
+            <ChampionshipTable 
+              isDarkMode={isDarkMode} 
+              favoriteDriverIds={favoriteDriverIds}
+              onToggleFavorite={handleToggleFavorite}
+              onSelectDriverForTelemetry={handleSelectDriverForTelemetry}
+            />
+          </div>
+        )}
+
         {activeTab === 'drivers' && (
           <div className="space-y-6">
+            <ChampionshipTable 
+              isDarkMode={isDarkMode} 
+              favoriteDriverIds={favoriteDriverIds}
+              onToggleFavorite={handleToggleFavorite}
+              onSelectDriverForTelemetry={handleSelectDriverForTelemetry}
+            />
             <GridLeaders
               drivers={drivers}
               isDarkMode={isDarkMode}
@@ -298,6 +317,13 @@ export default function App() {
         {activeTab === 'telemetry' && (
           <TelemetryAnalysis
             drivers={drivers}
+            isDarkMode={isDarkMode}
+          />
+        )}
+
+        {activeTab === 'radio' && (
+          <TeamRadioArchive
+            radioMessages={radioMessages}
             isDarkMode={isDarkMode}
           />
         )}

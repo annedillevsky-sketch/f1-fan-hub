@@ -249,8 +249,11 @@ export async function fetchLiveDriverStandings(season = '2026'): Promise<{ drive
         };
       });
 
-      // Sort by current position
-      mappedDrivers.sort((a, b) => a.currentPosition - b.currentPosition);
+      // Sort strictly by Championship points descending
+      mappedDrivers.sort((a, b) => b.points - a.points || b.wins - a.wins);
+      mappedDrivers.forEach((d, idx) => {
+        d.currentPosition = idx + 1;
+      });
 
       return {
         drivers: mappedDrivers,

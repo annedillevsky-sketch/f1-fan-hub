@@ -162,10 +162,15 @@ export interface RadioMessage {
   driverName: string;
   team: string;
   teamColor: string;
-  type: 'PITS' | 'STRATEGY' | 'INCIDENT' | 'CELEBRATION';
+  type: 'PITS' | 'STRATEGY' | 'INCIDENT' | 'CELEBRATION' | 'MEMORABLE';
   message: string;
   lap: number;
   timeString: string;
+  year?: number;
+  grandPrix?: string;
+  era?: 'recent' | 'historic';
+  isHistoric?: boolean;
+  context?: string;
 }
 
 export interface AlertPreferences {
